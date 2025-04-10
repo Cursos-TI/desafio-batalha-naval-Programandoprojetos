@@ -1,0 +1,133 @@
+#include <stdio.h>
+#include <ctype.h>
+
+#define TAMANHO_TABULEIRO 10
+#define TAMANHO_NAVIO 3
+
+// Inicializa o tabuleiro com zeros (água)
+void inicializarTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            tabuleiro[i][j] = 0;
+        }
+    }
+}
+
+// Converte letra da coluna (A-J) para índice numérico (0-9)
+int converterColuna(char letra) {
+    letra = toupper(letra);
+    if (letra < 'A' || letra > 'J') return -1;
+    return letra - 'A';
+}
+
+// Posiciona navio horizontalmente
+int posicionarHorizontal(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    if (coluna + TAMANHO_NAVIO > TAMANHO_TABULEIRO) return 0;
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        if (tabuleiro[linha][coluna + i] != 0) return 0;
+    }
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        tabuleiro[linha][coluna + i] = 3;
+    }
+    return 1;
+}
+
+// Posiciona navio verticalmente
+int posicionarVertical(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    if (linha + TAMANHO_NAVIO > TAMANHO_TABULEIRO) return 0;
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        if (tabuleiro[linha + i][coluna] != 0) return 0;
+    }
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        tabuleiro[linha + i][coluna] = 3;
+    }
+    return 1;
+}
+
+// Posiciona navio na diagonal principal ↘
+int posicionarDiagonalPrincipal(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    if (linha + TAMANHO_NAVIO > TAMANHO_TABULEIRO || coluna + TAMANHO_NAVIO > TAMANHO_TABULEIRO) return 0;
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        if (tabuleiro[linha + i][coluna + i] != 0) return 0;
+    }
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        tabuleiro[linha + i][coluna + i] = 3;
+    }
+    return 1;
+}
+
+// Posiciona navio na diagonal secundária ↙
+int posicionarDiagonalSecundaria(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    if (linha + TAMANHO_NAVIO > TAMANHO_TABULEIRO || coluna - TAMANHO_NAVIO + 1 < 0) return 0;
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        if (tabuleiro[linha + i][coluna - i] != 0) return 0;
+    }
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        tabuleiro[linha + i][coluna - i] = 3;
+    }
+    return 1;
+}
+
+// Aplica matriz de habilidade 3x3 no tabuleiro
+void aplicarHabilidade(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int centroLinha, int centroColuna) {
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            int linha = centroLinha + i;
+            int coluna = centroColuna + j;
+
+            if (linha >= 0 && linha < TAMANHO_TABULEIRO && coluna >= 0 && coluna < TAMANHO_TABULEIRO) {
+                if (tabuleiro[linha][coluna] == 0) {
+                    tabuleiro[linha][coluna] = 9;
+                }
+            }
+        }
+    }
+}
+
+// Exibe o tabuleiro com letras e números
+void exibirTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+    printf("   A B C D E F G H I J\n");
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        printf("%2d ", i + 1);
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            printf("%d ", tabuleiro[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+int main() {
+    int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO];
+    inicializarTabuleiro(tabuleiro);
+
+    // Posiciona navios
+    if (!posicionarHorizontal(tabuleiro, 2, converterColuna('D'))) {
+        printf("Erro ao posicionar navio horizontal!\n");
+        return 1;
+    }
+
+    if (!posicionarVertical(tabuleiro, 5, converterColuna('B'))) {
+        printf("Erro ao posicionar navio vertical!\n");
+        return 1;
+    }
+
+    if (!posicionarDiagonalPrincipal(tabuleiro, 0, converterColuna('G'))) {
+        printf("Erro ao posicionar navio diagonal ↘!\n");
+        return 1;
+    }
+
+    if (!posicionarDiagonalSecundaria(tabuleiro, 7, converterColuna('J'))) {
+        printf("Erro ao posicionar navio diagonal ↙!\n");
+        return 1;
+    }
+
+    // Aplica habilidades (exemplo: centro em (5, E) e (9, I))
+    aplicarHabilidade(tabuleiro, 4, converterColuna('E'));
+    aplicarHabilidade(tabuleiro, 8, converterColuna('I'));
+
+    // Exibe o resultado final
+    printf("\nTabuleiro com navios e áreas de habilidade:\n");
+    exibirTabuleiro(tabuleiro);
+
+    return 0;
+}
