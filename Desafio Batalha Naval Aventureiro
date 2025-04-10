@@ -1,0 +1,136 @@
+#include <stdio.h>
+#include <ctype.h> // Para toupper
+
+#define TAMANHO_TABULEIRO 10
+#define TAMANHO_NAVIO 3
+
+// Inicializa o tabuleiro com 0 (água)
+void inicializarTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            tabuleiro[i][j] = 0;
+        }
+    }
+}
+
+// Converte letra da coluna (A-J) para índice numérico (0-9)
+int converterColuna(char letra) {
+    letra = toupper(letra);
+    if (letra < 'A' || letra > 'J')
+        return -1;
+    return letra - 'A';
+}
+
+// Posiciona navio horizontal
+int posicionarHorizontal(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    if (coluna + TAMANHO_NAVIO > TAMANHO_TABULEIRO)
+        return 0;
+
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        if (tabuleiro[linha][coluna + i] != 0)
+            return 0;
+    }
+
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        tabuleiro[linha][coluna + i] = 3;
+    }
+
+    return 1;
+}
+
+// Posiciona navio vertical
+int posicionarVertical(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    if (linha + TAMANHO_NAVIO > TAMANHO_TABULEIRO)
+        return 0;
+
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        if (tabuleiro[linha + i][coluna] != 0)
+            return 0;
+    }
+
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        tabuleiro[linha + i][coluna] = 3;
+    }
+
+    return 1;
+}
+
+// Posiciona navio na diagonal principal (↘)
+int posicionarDiagonalPrincipal(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    if (linha + TAMANHO_NAVIO > TAMANHO_TABULEIRO || coluna + TAMANHO_NAVIO > TAMANHO_TABULEIRO)
+        return 0;
+
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        if (tabuleiro[linha + i][coluna + i] != 0)
+            return 0;
+    }
+
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        tabuleiro[linha + i][coluna + i] = 3;
+    }
+
+    return 1;
+}
+
+// Posiciona navio na diagonal secundária (↙)
+int posicionarDiagonalSecundaria(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO], int linha, int coluna) {
+    if (linha + TAMANHO_NAVIO > TAMANHO_TABULEIRO || coluna - (TAMANHO_NAVIO - 1) < 0)
+        return 0;
+
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        if (tabuleiro[linha + i][coluna - i] != 0)
+            return 0;
+    }
+
+    for (int i = 0; i < TAMANHO_NAVIO; i++) {
+        tabuleiro[linha + i][coluna - i] = 3;
+    }
+
+    return 1;
+}
+
+// Exibe o tabuleiro
+void exibirTabuleiro(int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO]) {
+    printf("  A B C D E F G H I J\n");
+    for (int i = 0; i < TAMANHO_TABULEIRO; i++) {
+        printf("%2d ", i + 1);
+        for (int j = 0; j < TAMANHO_TABULEIRO; j++) {
+            printf("%d ", tabuleiro[i][j]);
+        }
+        printf("\n");
+    }
+}
+
+int main() {
+    int tabuleiro[TAMANHO_TABULEIRO][TAMANHO_TABULEIRO];
+    inicializarTabuleiro(tabuleiro);
+
+    // Horizontal: linha 3, coluna D
+    if (!posicionarHorizontal(tabuleiro, 2, converterColuna('D'))) {
+        printf("Erro ao posicionar navio horizontal!\n");
+        return 1;
+    }
+
+    // Vertical: linha 6, coluna B
+    if (!posicionarVertical(tabuleiro, 5, converterColuna('B'))) {
+        printf("Erro ao posicionar navio vertical!\n");
+        return 1;
+    }
+
+    // Diagonal ↘: linha 1, coluna G
+    if (!posicionarDiagonalPrincipal(tabuleiro, 0, converterColuna('G'))) {
+        printf("Erro ao posicionar navio diagonal principal!\n");
+        return 1;
+    }
+
+    // Diagonal ↙: linha 8, coluna J
+    if (!posicionarDiagonalSecundaria(tabuleiro, 7, converterColuna('J'))) {
+        printf("Erro ao posicionar navio diagonal secundária!\n");
+        return 1;
+    }
+
+    printf("\nTabuleiro com quatro navios posicionados:\n");
+    exibirTabuleiro(tabuleiro);
+
+    return 0;
+}
